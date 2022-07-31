@@ -14,13 +14,13 @@
 [CmdletBinding()]
 Param
 (
-    # Param1 help description
+    # Path to the directory to rename subs in
     [Parameter(Mandatory = $true,
         ValueFromPipelineByPropertyName = $true,
         Position = 0)]
     $Path,
 
-    # Param2 help description
+    # Enable switch to copy all subtitles. Renaming not working yet with this.
     [Parameter(Mandatory = $false,
         ValueFromPipelineByPropertyName = $true,
         Position = 1)]
@@ -83,25 +83,31 @@ Begin
     }
 }
 
-# Copy Subs to the target Path and rename to movie file
+# Copy Subs from subs subdirectory to the target Path and rename to movie file.
 Process
 {
     $newSubs = $subs | Copy-Item -Destination $Path -PassThru
 
-    # need to add some logic here for repeats/eng sdh
-    # needs work - $newSubPath shouldn't be necessary but is.
-    # Also, occasionally order is wrong - SDH sub will usually be larger so go with that.
-    $newSubs | ForEach-Object {
-        $newSubPath = $_.FullName
-        try
-        {
-            Rename-Item $newSubPath -NewName "$($movieFile.BaseName).eng.srt" -ErrorAction Stop
-        }
-        catch
-        {                        
-            $logText = "$dirName 2+ English subtitles found."
-            Write-Warning $logText
-            Rename-Item $newSubPath -NewName "$($movieFile.BaseName).eng.sdh.srt"
+    # if only 1 sub, assume it's English
+    if ($newSubs.Count -eq 1)
+    {
+        Rename-Item $newSubs[0].FullName -NewName "$($movieFile.BaseName).eng.srt" -ErrorAction Stop
+    }
+    else # if there are more than 3 subs I duno what to do lol
+    {
+        # More than 1 sub; sort by size, assume SDH is larger
+        $logText = "$dirName 2+ English subtitles found."
+        Write-Warning $logText
+        $newSubs | Sort-Object Length -Descending | ForEach-Object {
+            $newSubPath = $_.FullName
+            try
+            {
+                Rename-Item $newSubPath -NewName "$($movieFile.BaseName).eng.sdh.srt" -ErrorAction Stop
+            }
+            catch
+            {                        
+                Rename-Item $newSubPath -NewName "$($movieFile.BaseName).eng.srt"
+            }
         }
     }
 }
