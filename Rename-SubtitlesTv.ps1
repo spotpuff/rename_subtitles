@@ -1,12 +1,39 @@
-# subtitle stuff
-$path = 'M:\tv\The Sandman\The.Sandman.S01.1080p.WEBRip.x265-RARBG'
-$files = Get-ChildItem $path -File -Filter *.mp4
+<#
+.Synopsis
+   Format subtitles for Plex for a TV series with subs in a subdir.
+.DESCRIPTION
+   Format subtitles for Plex for a TV series with subs in a subdir.
+
+   Copies subtitles from a "Subs" subdirectory into the top level
+   with the same name as the movie file in the top level directory.
+.EXAMPLE
+   .\Rename-Subtitles 'path/to/tv/series'
+.EXAMPLE
+   .\Rename-Subtitles 'path/to/tv/series' -AllLanguages
+#>
+[CmdletBinding()]
+Param
+(
+    # Path to the directory to rename subs in
+    [Parameter(Mandatory = $true,
+        ValueFromPipelineByPropertyName = $true,
+        Position = 0)]
+    $Path#,
+
+    # # Enable switch to copy all subtitles. Renaming not working yet with this.
+    # [Parameter(Mandatory = $false,
+    #     ValueFromPipelineByPropertyName = $true,
+    #     Position = 1)]
+    # [switch]
+    # $AllLanguages
+)
+
+$files = Get-ChildItem $Path -File -Filter *.mp4
 
 foreach ($file in $files)
 {
-    # get the subs
-    $temppath = Join-Path "$path\Subs" $file.basename
-    "$tempPath $(Test-Path $temppath)"
+    # get the subs for each file
+    $temppath = Join-Path "$path\Subs" $file.basename    
     $subs = Get-ChildItem $temppath -Filter *eng*.srt
     
     # copy subs
