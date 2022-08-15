@@ -35,10 +35,10 @@ foreach ($file in $files)
     # get the subs for each file
     $temppath = Join-Path "$path\Subs" $file.basename    
     $subs = Get-ChildItem $temppath -Filter *eng*.srt
-    
+
     # copy subs
     $newSubs = $subs | Copy-Item -Destination $path -PassThru | Sort-Object Length -Descending
-    
+
     # rename subs; making assumptions on which ones are which
     $subBaseName = $file.BaseName
     Rename-Item $newSubs[0] "$subBaseName.eng.sdh.srt"
