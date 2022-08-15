@@ -95,19 +95,18 @@ Process
     }
     else # if there are more than 3 subs I duno what to do lol
     {
-        # More than 1 sub; sort by size, assume SDH is larger
+        # if more than one sub, assume order is:
+        # 1. SDH
+        # 2. ENG
+        # 3. Forced
         $logText = "$dirName 2+ English subtitles found."
         Write-Warning $logText
-        $newSubs | Sort-Object Length -Descending | ForEach-Object {
-            $newSubPath = $_.FullName
-            try
-            {
-                Rename-Item $newSubPath -NewName "$($movieFile.BaseName).eng.sdh.srt" -ErrorAction Stop
-            }
-            catch
-            {                        
-                Rename-Item $newSubPath -NewName "$($movieFile.BaseName).eng.srt"
-            }
+        $sortedNewSubs = $newSubs | Sort-Object Length -Descending
+        Rename-Item $sortedNewSubs[0].FullName -NewName "$($movieFile.BaseName).eng.sdh.srt" -ErrorAction Stop
+        Rename-Item $sortedNewSubs[1].FullName -NewName "$($movieFile.BaseName).eng.srt" -ErrorAction Stop
+        if ($sortedNewSubs.count -eq 3)
+        {
+            Rename-Item $sortedNewSubs[2].FullName -NewName "$($movieFile.BaseName).eng.forced.srt" -ErrorAction Stop
         }
     }
 }
