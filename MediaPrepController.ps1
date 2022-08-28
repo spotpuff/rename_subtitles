@@ -9,7 +9,10 @@ param (
 $directories = Get-ChildItem -Path $Path -Directory
 if ($directories.count -gt 0)
 {
-    $directories | ForEach-Object { & $PSScriptRoot\Rename-Subtitles.ps1 -Path $_.FullName }
+    $directories | ForEach-Object {
+            & $PSScriptRoot\Rename-Subtitles.ps1 -Path $_.FullName
+            & $PSScriptRoot\Remove-ExtraFiles.ps1 -Path $_.FullName
+        }
 }
 else
 {
