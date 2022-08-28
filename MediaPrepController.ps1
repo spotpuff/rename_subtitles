@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param (
-    [Parameter()]
+# Parameter help description
+    [Parameter(Mandatory=$false)]
     [string]
     $Path = 'M:\downloads'
 )
@@ -8,7 +9,7 @@ param (
 $directories = Get-ChildItem -Path $Path -Directory
 if ($directories.count -gt 0)
 {
-    ForEach-Object { & $PSScriptRoot\Rename-Subtitles.ps1 -Path $_.FullName }
+    $directories | ForEach-Object { & $PSScriptRoot\Rename-Subtitles.ps1 -Path $_.FullName }
 }
 else
 {
