@@ -18,14 +18,13 @@ Param
     $Path
 )
 
-# Get the subs from the subdir and the movie file name
 Begin
 {
 }
 
-# Remove any .exe, .nfo, or .txt files from the folders
 Process
 {
+    # Remove any .exe, .nfo, or .txt files from the folders
     $fileTypes = @('*.exe', '*.nfo', '*.txt')
     $filesToRemove = Get-ChildItem -Path $Path -Recurse -Include $fileTypes
     if ($filesToRemove.count -gt 0)
@@ -38,6 +37,21 @@ Process
     {
         $logText = "$Path no extra files found."
         Write-Warning $logtext
+    }
+
+    # Remove any "samples" subidr
+    $sampleDirectoryName = 'sample*'
+    $sampleDirectories = Get-ChildItem -Path $Path -Directory -Filter $sampleDirectoryName
+    if ($sampleDirectories.count -gt 0)
+    {
+        $sampleDirectories | Remove-Item -Force
+        $logText = "$Path sample directories removed."
+        Write-Output $logText
+    }
+    else
+    {
+        $logText = "$Path no sample directories found."
+        Write-Output $logText
     }
 }
 
