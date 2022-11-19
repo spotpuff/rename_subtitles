@@ -22,7 +22,7 @@ if ($directories.count -gt 0)
         }
         else
         {
-            & $PSScriptRoot\Remove-Subtitles.ps1 -Path $_.FullName
+            & $PSScriptRoot\Rename-Subtitles.ps1 -Path $_.FullName
         }
     }
 }
