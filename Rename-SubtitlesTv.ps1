@@ -28,13 +28,15 @@ Param
     # $AllLanguages
 )
 
-$files = Get-ChildItem $Path -File -Filter *.mp4
+$files = Get-ChildItem -LiteralPath $Path -File -Filter *.mp4
 
 foreach ($file in $files)
 {
     # get the subs for each file
     $temppath = Join-Path "$path\Subs" $file.basename    
-    $subs = Get-ChildItem $temppath -Filter *eng*.srt
+    $subs = Get-ChildItem -LiteralPath $temppath -Filter *eng*.srt
+
+    Write-Output "SubPath: $temppath"
 
     # copy subs
     $newSubs = $subs | Copy-Item -Destination $path -PassThru | Sort-Object Length -Descending
