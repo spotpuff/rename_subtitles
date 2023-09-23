@@ -28,21 +28,22 @@ Param
     # $AllLanguages
 )
 
-$files = Get-ChildItem $Path -File -Filter *.mp4
+$files = Get-ChildItem -LiteralPath $Path -File -Filter *.mp4
 
 foreach ($file in $files)
 {
     # get the subs for each file
-    $temppath = Join-Path "$path\Subs" $file.basename    
-    $subs = Get-ChildItem $temppath -Filter *eng*.srt
+    $temppath = Join-Path "$path\Subs" $file.basename
+    Write-Output $temppath
+    $subs = Get-ChildItem -LiteralPath $temppath -Filter *eng*.srt
 
     # copy subs
     $newSubs = $subs | Copy-Item -Destination $path -PassThru | Sort-Object Length -Descending
 
     # rename subs; making assumptions on which ones are which
     $subBaseName = $file.BaseName
-    Rename-Item $newSubs[0] "$subBaseName.eng.sdh.srt"
-    Rename-Item $newSubs[1] "$subBaseName.eng.srt"
+    Rename-Item -LiteralPath $newSubs[0] "$subBaseName.eng.sdh.srt"
+    Rename-Item -LiteralPath $newSubs[1] "$subBaseName.eng.srt"
     if ($subs.Count -eq 3)
     {
         Rename-Item $newSubs[2] "$subBaseName.eng.forced.srt"
