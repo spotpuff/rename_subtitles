@@ -39,6 +39,7 @@ Process
         Write-Warning $logtext
     }
 
+
     # Remove any "samples" subdir
     $sampleDirectoryName = 'sample*'
     $sampleDirectories = Get-ChildItem -Path $Path -Directory -Filter $sampleDirectoryName
