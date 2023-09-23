@@ -35,7 +35,7 @@ Begin
 
     # get movies; if more than one, pick the biggest one
     $movieFormatList = @('*.mkv', '*.mp4', '*.mpeg4', '*.mpeg', '*.mpg', '*.avi')
-    $movieFiles = Get-ChildItem -Path $Path\* -Include $movieFormatList
+    $movieFiles = Get-ChildItem -LiteralPath $Path -Include $movieFormatList
     if (-not $movieFiles)
     {
         $logText = "$dirName - No movie file found."
@@ -49,7 +49,7 @@ Begin
 
     # check if sub exists
     $subPath = Join-Path $Path "$($movieFile.Basename).eng.srt"
-    if (Test-Path $subPath)
+    if (Test-Path -LiteralPath $subPath)
     {
         $logText = "$dirName - Subtitle already exists."
         Write-Warning $logText
@@ -57,22 +57,23 @@ Begin
     }
 
     # Get subs subdir
-    $subsDir = Get-ChildItem -Path $path -Filter 'Subs'
+    $subsDir = Get-ChildItem -LiteralPath $path -Filter 'Subs'
     if (-not $subsDir)
     {
         $logText = "$dirName - No subs dir found."
-        Write-Output $logText
+        Write-Warning $logText
+        continue
     }
 
     # get English only by default
     if (-not $AllLanguages)
     {
         $subFilter = @('*english*.srt')
-        $subs = Get-ChildItem -Path "$($subsDir.FullName)\*" -Include $subFilter
+        $subs = Get-ChildItem -LiteralPath $subsDir.FullName -Include $subFilter
     }
     else
     {
-        $subs = Get-ChildItem -Path $subsDir.FullName -Filter '*.srt'
+        $subs = Get-ChildItem -LiteralPath $subsDir.FullName -Filter '*.srt'
     }
 
     if (-not $subs)
