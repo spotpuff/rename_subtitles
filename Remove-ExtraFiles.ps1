@@ -27,7 +27,6 @@ Process
     # Remove any .exe, .nfo, or .txt files from the folders.
     # This SHOULD work but is deleting all the files in the directory.
     $fileTypes = @(".exe", ".nfo", ".txt")
-    Write-Output $fileTypes
     $filesToRemove = Get-ChildItem -LiteralPath $Path |
         Where-Object { $_.Extension -in $fileTypes }
 
