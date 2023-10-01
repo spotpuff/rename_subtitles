@@ -6,13 +6,12 @@ param (
     $Path = 'M:\downloads'
 )
 
-$directories = Get-ChildItem -Path $Path -Directory
+$directories = Get-ChildItem -LiteralPath $Path -Directory
 if ($directories.count -gt 0)
 {
     $directories | ForEach-Object {
         # remove extraneous files
         & $PSScriptRoot\Remove-ExtraFiles.ps1 -Path $_.FullName
-        Pause
 
         # check if there are multiple files over 5MB (anything less is assumed to be a subtitle)
         # if there are, assume it's a TV series
@@ -20,14 +19,12 @@ if ($directories.count -gt 0)
         if ($videoFiles.count -gt 1)
         {
             & $PSScriptRoot\Rename-SubtitlesTv.ps1 -Path $_.FullName
-            Pause
         }
         else
         {
             & $PSScriptRoot\Rename-Subtitles.ps1 -Path $_.FullName
         }
     }
-    Pause
 }
 else
 {

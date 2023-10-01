@@ -26,7 +26,7 @@ Process
 {
     # Remove any .exe, .nfo, or .txt files from the folders
     $fileTypes = @('*.exe', '*.nfo', '*.txt')
-    $filesToRemove = Get-ChildItem -Path $Path -Recurse -Include $fileTypes
+    $filesToRemove = Get-ChildItem -LiteralPath $Path -Recurse -Include $fileTypes
     if ($filesToRemove.count -gt 0)
     {
         $filestoremove | Remove-Item
@@ -39,10 +39,9 @@ Process
         Write-Warning $logtext
     }
 
-
     # Remove any "samples" subdir
     $sampleDirectoryName = 'sample*'
-    $sampleDirectories = Get-ChildItem -Path $Path -Directory -Filter $sampleDirectoryName
+    $sampleDirectories = Get-ChildItem -LiteralPath $Path -Directory -Filter $sampleDirectoryName
     if ($sampleDirectories.count -gt 0)
     {
         $sampleDirectories | Remove-Item -Force

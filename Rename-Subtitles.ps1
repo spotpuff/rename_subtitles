@@ -35,7 +35,7 @@ Begin
 
     # get movies; if more than one, pick the biggest one
     $movieFormatList = @('*.mkv', '*.mp4', '*.mpeg4', '*.mpeg', '*.mpg', '*.avi')
-    $movieFiles = Get-ChildItem -LiteralPath $Path -Include $movieFormatList
+    $movieFiles = Get-ChildItem -LiteralPath $Path -Include $movieFormatList -File
     if (-not $movieFiles)
     {
         $logText = "$dirName - No movie file found."
@@ -68,15 +68,15 @@ Begin
     # get English only by default
     if (-not $AllLanguages)
     {
-        $subFilter = @('*english*.srt')
+        $subFilter = @('*eng*.srt')
         $subs = Get-ChildItem -LiteralPath $subsDir.FullName -Include $subFilter
     }
     else
     {
-        $subs = Get-ChildItem -LiteralPath $subsDir.FullName -Filter '*.srt'
+        $subs = Get-ChildItem -LiteralPath $subsDir.FullName -Filter "*.srt"
     }
 
-    if (-not $subs)
+    if ($subs.count -eq 0)
     {
         $logText = "$dirName - No subtitles found."
         Write-Warning $logText
