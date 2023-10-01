@@ -24,18 +24,22 @@ Begin
 
 Process
 {
-    # Remove any .exe, .nfo, or .txt files from the folders
-    $fileTypes = @('*.exe', '*.nfo', '*.txt')
-    $filesToRemove = Get-ChildItem -LiteralPath $Path -Recurse -Include $fileTypes
+    # Remove any .exe, .nfo, or .txt files from the folders.
+    # This SHOULD work but is deleting all the files in the directory.
+    $fileTypes = @(".exe", ".nfo", ".txt")
+    Write-Output $fileTypes
+    $filesToRemove = Get-ChildItem -LiteralPath $Path |
+        Where-Object { $_.Extension -in $fileTypes }
+
     if ($filesToRemove.count -gt 0)
     {
         $filestoremove | Remove-Item
-        $logText = "$Path extra files removed."
+        $logText = "Extra files removed from: $Path"
         Write-Output $logText
     }
     else
     {
-        $logText = "$Path no extra files found."
+        $logText = "No extra files found in: $Path."
         Write-Warning $logtext
     }
 
@@ -45,12 +49,12 @@ Process
     if ($sampleDirectories.count -gt 0)
     {
         $sampleDirectories | Remove-Item -Force
-        $logText = "$Path sample directories removed."
+        $logText = "Sample directories removed from: $Path"
         Write-Output $logText
     }
     else
     {
-        $logText = "$Path no sample directories found."
+        $logText = "No sample directories found in: $Path"
         Write-Output $logText
     }
 }
