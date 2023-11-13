@@ -15,19 +15,10 @@ if ($directories.count -gt 0)
         Write-Output "Removing extra files in: $($_.fullname)"
         & $PSScriptRoot\Remove-ExtraFiles.ps1 -Path $_.FullName
 
-        # check if there are multiple files over 5MB (anything less is assumed to be a subtitle)
-        # if there are, assume it's a TV series
+        # Check if there are multiple files over 5MB (non-sample video files)
+        # Call Rename-Subtitles.ps1 script
         $videoFiles = Get-ChildItem -LiteralPath $_.FullName | Where-Object { $_.length -gt '5MB' }
-        if ($videoFiles.count -gt 1)
-        {
-            Write-Output "Renaming tv subtitles in: $($_.fullname)"
-            & $PSScriptRoot\Rename-SubtitlesTv.ps1 -Path $_.FullName
-        }
-        else
-        {
-            Write-Output "Renaming movie subtitles in: $($_.fullname)"
-            & $PSScriptRoot\Rename-Subtitles.ps1 -Path $_.FullName
-        }
+        & $PSScriptRoot\Rename-Subtitles.ps1 -LiteralPath $_.FullName
     }
 }
 else
