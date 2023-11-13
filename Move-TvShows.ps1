@@ -15,12 +15,13 @@ Param
     [Parameter(Mandatory = $true,
         ValueFromPipelineByPropertyName = $true,
         Position = 0)]
-    $Path
+    [string]
+    $Path = "M:\downloads"
 )
 
 # if parameterizing for show vs movie, will need different things probably, since movies have no season or whatever
 # it's likely just 2k vs 4k
-$files = Get-ChildItem M:\downloads -File
+$files = Get-ChildItem -LiteralPath $Path -File
 $pattern = '(?<showName>.*)(?<seasonNumber>\.[Ss]?\d{2})(?<episodeNumber>[Ee]?\d{2})(?<resolution>\.\d{3,}p)(?<meta>\..*)'
 
 $tvDirectory = 'M:\tv\'
