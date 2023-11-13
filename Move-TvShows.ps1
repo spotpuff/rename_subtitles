@@ -16,7 +16,7 @@ Param
         ValueFromPipelineByPropertyName = $true,
         Position = 0)]
     [string]
-    $Path = "M:\downloads"
+    $Path = 'M:\downloads'
 )
 
 # if parameterizing for show vs movie, will need different things probably, since movies have no season or whatever
