@@ -1,5 +1,6 @@
 [CmdletBinding()]
-param (
+Param
+(
     # Parameter help description
     [Parameter(Mandatory = $false)]
     [string]
@@ -34,4 +35,4 @@ else
     Write-Output "No media directories found in $Path."
 }
 
-pause
+Pause
