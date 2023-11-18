@@ -12,7 +12,7 @@
 Param
 (
     # Path to the directory to rename subs in
-    [Parameter(Mandatory = $true,
+    [Parameter(Mandatory = $false,
         ValueFromPipelineByPropertyName = $true,
         Position = 0)]
     [string]
@@ -41,6 +41,6 @@ $files | ForEach-Object {
         Write-Warning "Creating $showDirectory."
         New-Item $showDirectory -ItemType Directory
     }    
-    Write-Output "Moving $showName to $showDirectory."
+    Write-Output "Moving $showName - S$seasonNumber.E$episodeNumber to $showDirectory."
     Move-Item -LiteralPath $_.FullName -Destination $showDirectory
 }
