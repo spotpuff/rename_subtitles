@@ -1,3 +1,17 @@
+<#
+.Synopsis
+   Controller to handle renaming subtitles and moving media files to appropriate directories.
+.DESCRIPTION
+   Controller to handle renaming subtitles and moving media files to appropriate directories.
+   This media prep controller should:
+   1. Check for directories/media files in the top level of the directory.
+      Directories are likely movies, individual media files are likely TV shows.
+   2. Rename subtitles for any directories with "Subs" sub-directories.
+   3. If movie, move to movie (2k/4k) directory. If TV, move to TV Show\Season directory.
+.EXAMPLE
+   .\MediaPrepController.ps1
+#>
+
 [CmdletBinding()]
 Param
 (
