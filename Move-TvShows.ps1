@@ -22,25 +22,32 @@ Param
 # if parameterizing for show vs movie, will need different things probably, since movies have no season or whatever
 # it's likely just 2k vs 4k
 $files = Get-ChildItem -LiteralPath $Path -File
-$pattern = '(?<showName>.*)(?<seasonNumber>\.[Ss]?\d{2})(?<episodeNumber>[Ee]?\d{2})(?<resolution>\.\d{3,}p)(?<meta>\..*)'
+$pattern = '(?<showName>.*)(?<seasonNumber>\.[Ss]?\d{2})(?<episodeNumber>[Ee]?\d{2})(?<proper>\.PROPER\.)?(?<resolution>.\d{3,}p)?(?<meta>\..*)'
 
 $tvDirectory = 'M:\tv\'
 
-# Determine show name and episode number (for season) based on metadata
+# Determine show name and episode number (for season) based on metadata but
+# only for matches.
 $files | ForEach-Object {
-    $_.Name -match $pattern | Out-Null
-    $showName = $Matches.showName.Replace('.', ' ')
-    $seasonNumber = $Matches.seasonNumber.Replace('.', '').Replace('S', '').Replace('s', '')
-    $episodeNumber = $Matches.episodeNumber.Replace('.', '').Replace('E', '').Replace('e', '')
-    
-    $showDirectory = Join-Path -Path $tvDirectory -ChildPath ("$showName\Season $([int]$seasonNumber)")
-    
-    # Create directory if needed and move item to that directory.
-    if (!(Test-Path $showDirectory))
+    if ($_.Name -match $pattern | Out-Null)
     {
-        Write-Warning "Creating $showDirectory."
-        New-Item $showDirectory -ItemType Directory
-    }    
-    Write-Output "Moving $showName - S$seasonNumber.E$episodeNumber to $showDirectory."
-    Move-Item -LiteralPath $_.FullName -Destination $showDirectory
+        $showName = $Matches.showName.Replace('.', ' ')
+        $seasonNumber = $Matches.seasonNumber.Replace('.', '').Replace('S', '').Replace('s', '')
+        $episodeNumber = $Matches.episodeNumber.Replace('.', '').Replace('E', '').Replace('e', '')
+    
+        $showDirectory = Join-Path -Path $tvDirectory -ChildPath ("$showName\Season $([int]$seasonNumber)")
+    
+        # Create directory if needed and move item to that directory.
+        if (!(Test-Path $showDirectory))
+        {
+            Write-Warning "Creating $showDirectory."
+            New-Item $showDirectory -ItemType Directory
+        }    
+        Write-Output "Moving $showName - S$seasonNumber.E$episodeNumber to $showDirectory."
+        Move-Item -LiteralPath $_.FullName -Destination $showDirectory
+    }
+    else
+    {
+        Write-Warning "$showName not recognized. File not moved."
+    }
 }
