@@ -22,7 +22,7 @@ Param
 # if parameterizing for show vs movie, will need different things probably, since movies have no season or whatever
 # it's likely just 2k vs 4k
 $files = Get-ChildItem -LiteralPath $Path -File
-$pattern = '(?<showName>.*)(?<seasonNumber>\.[Ss]?\d{2})(?<episodeNumber>[Ee]?\d{2})(?<proper>\.PROPER\.)?(?<resolution>.\d{3,}p)?(?<meta>\..*)'
+$pattern = '(?<showName>.*)(?<seasonNumber>\.[Ss]?\d{2})(?<episodeNumber>[Ee]?\d{2})(?<proper>\.PROPER)?(?<resolution>\.\d{3,}p)?(?<meta>\..*)'
 
 $tvDirectory = 'M:\tv\'
 
