@@ -20,7 +20,7 @@ Param
 )
 
 # Function to process a TV show. Analagous movie function also exists.
-Function Invoke-ProcessTvShow()
+Function Move-TvShow()
 {
     [CmdletBinding()]
     param
@@ -78,7 +78,7 @@ $tvDetectionPattern = '\.[Ss]?\d{2}[Ee]?\d{2}\.'
 $mediaItems | ForEach-Object {
     if ($_.name -match $tvDetectionPattern)
     {
-        Invoke-ProcessTvShow $_.FullName
+        Move-TvShow $_.FullName
     }
     else
     {
