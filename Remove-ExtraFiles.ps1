@@ -12,9 +12,7 @@
 Param
 (
     # Path to the directory to rename subs in
-    [Parameter(Mandatory = $true,
-        ValueFromPipelineByPropertyName = $true,
-        Position = 0)]
+    [Parameter(Mandatory = $true, Position = 0)]
     $Path
 )
 
@@ -26,9 +24,8 @@ Process
 {
     # Remove any .exe, .nfo, or .txt files from the folders.
     # This SHOULD work but is deleting all the files in the directory.
-    $fileTypes = @(".exe", ".nfo", ".txt")
-    $filesToRemove = Get-ChildItem -LiteralPath $Path |
-        Where-Object { $_.Extension -in $fileTypes }
+    $fileTypes = @('.exe', '.nfo', '.txt')
+    $filesToRemove = Get-ChildItem -LiteralPath $Path | Where-Object { $_.Extension -in $fileTypes }
 
     if ($filesToRemove.count -gt 0)
     {
