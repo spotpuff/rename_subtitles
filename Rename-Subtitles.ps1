@@ -15,17 +15,12 @@
 Param
 (
     # Path to the directory to rename subs in
-    [Parameter(Mandatory = $true,
-        ValueFromPipelineByPropertyName = $true,
-        Position = 0)]
-    $Path,
+    [Parameter(Mandatory = $true, Position = 0)]
+    [string]$Path,
 
     # Enable switch to copy all subtitles. Renaming not working yet with this.
-    [Parameter(Mandatory = $false,
-        ValueFromPipelineByPropertyName = $true,
-        Position = 1)]
-    [switch]
-    $AllLanguages
+    [Parameter(Mandatory = $false, Position = 1)]
+    [switch]$AllLanguages
 )
 
 Function Rename-MovieSubtitles()
@@ -34,17 +29,12 @@ Function Rename-MovieSubtitles()
     Param
     (
         # Path to the directory to rename subs in
-        [Parameter(Mandatory = $true,
-            ValueFromPipelineByPropertyName = $true,
-            Position = 0)]
-        $Path,
+        [Parameter(Mandatory = $true, Position = 0)]
+        [string]$Path,
 
         # Enable switch to copy all subtitles. Renaming not working yet with this.
-        [Parameter(Mandatory = $false,
-            ValueFromPipelineByPropertyName = $true,
-            Position = 1)]
-        [switch]
-        $AllLanguages
+        [Parameter(Mandatory = $false, Position = 1)]
+        [switch]$AllLanguages
     )
 
     # Get the subs from the subdir and the movie file name
@@ -144,10 +134,8 @@ Function Rename-TvSubtitles()
     Param
     (
         # Path to the directory to rename subs in
-        [Parameter(Mandatory = $true,
-            ValueFromPipelineByPropertyName = $true,
-            Position = 0)]
-        $Path#,
+        [Parameter(Mandatory = $true,Position = 0)]
+        [string]$Path#,
 
         # # Enable switch to copy all subtitles. Renaming not working yet with this.
         # [Parameter(Mandatory = $false,
@@ -157,7 +145,8 @@ Function Rename-TvSubtitles()
         # $AllLanguages
     )
 
-    $files = Get-ChildItem -LiteralPath $Path -File -Filter *.mp4
+    $fileTypes = @('.mkv', '.mp4', '.mpeg4')
+    $files = Get-ChildItem -LiteralPath $Path -File -Include $fileTypes
 
     foreach ($file in $files)
     {
@@ -181,7 +170,8 @@ Function Rename-TvSubtitles()
 }
 
 # Actual subtitle processing here.
-$videoFiles = Get-ChildItem -LiteralPath $Path | Where-Object { $_.length -gt '5MB' }
+$fileTypes = @('.mkv', '.mp4', '.mpeg4')
+$videoFiles = Get-ChildItem -LiteralPath $Path -Include $fileTypes | Where-Object { $_.length -gt '5MB' }
 if ($videoFiles.count -gt 1)
 {
     Write-Output "Renaming tv subtitles in: $($_.fullname)"
