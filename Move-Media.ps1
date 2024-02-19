@@ -36,11 +36,11 @@ Function Move-TvShow()
         [string]$TvDestinationPath = 'M:\tv\'
     )
 
-    # Determine show name and episode number (for season) based on metadata but
-    # only for matches.
+    # If working on directory, get child items first. Then move media + subs.
     if (Test-Path -LiteralPath $Path -PathType Leaf)
     {
-        if ( $((Get-Item -LiteralPath $Path).Name -match $TvMediaPattern) )
+        # Determine show name and episode number (for season) based on item name.
+        if ( $Path -match $TvMediaPattern)
         {
             $showName = $Matches.showName.Replace('.', ' ')
             $seasonNumber = $Matches.seasonNumber.Replace('.', '').Replace('S', '').Replace('s', '')
@@ -60,7 +60,7 @@ Function Move-TvShow()
         }
         else
         {
-            Write-Warning "$showName not recognized. File not moved."
+            Write-Warning 'Media name not recognized. Media files not moved.'
         }
     }
 }
@@ -80,15 +80,16 @@ Function Move-Movie()
         [string]$2kDestinationPath = 'M:\2K movies\New'
     )
 
-    if ($_.fullname -match '*2160p*')
+    if ($_.fullname -match '.*2160p.*')
     {
+        Write-Host "Moving $($Path.basename) to 4k movies"
         Move-Item -Path $Path -Destination $4kDestinationPath
     }
     else
     {
+        Write-Host "Moving $($Path.basename) to new 2k movies"
         Move-Item -Path $Path -Destination $2kDestinationPath
     }
-
 }
 
 # if parameterizing for show vs movie, will need different things probably, since movies have no season or whatever
