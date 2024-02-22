@@ -29,7 +29,7 @@ Function Move-TvShow()
         [string]$Path,
 
         [Parameter(Mandatory = $false)]
-        [string]$TvMediaPattern = $TvMediaPattern,
+        [string]$TvRegexPattern = $TvMediaPattern,
 
         [Parameter(Mandatory = $false)]
         [ValidateScript({ Test-Path -LiteralPath $_ -ItemType Directory })]
@@ -39,14 +39,22 @@ Function Move-TvShow()
     # If working on directory, get child items first. Then move media + subs.
     if (Test-Path -LiteralPath $Path -PathType Leaf)
     {
+        $filename = Split-Path $Path -Leaf
+
         # Determine show name and episode number (for season) based on item name.
-        if ( $Path -match $TvMediaPattern)
+        if ( $filename -match $TvRegexPattern)
         {
             $showName = $Matches.showName.Replace('.', ' ')
             $seasonNumber = $Matches.seasonNumber.Replace('.', '').Replace('S', '').Replace('s', '')
             $episodeNumber = $Matches.episodeNumber.Replace('.', '').Replace('E', '').Replace('e', '')
 
-            $tvShowDirectory = Join-Path -Path $TvDestinationPath -ChildPath ("$showName\Season $([int]$seasonNumber)")
+            $tvShowDirectory = Join-Path -Path $TvDestinationPath -ChildPath $("$showName\Season $([int]$seasonNumber)")
+
+            Write-Host $Path
+            Write-Host $showName
+            Write-Host $seasonNumber
+            Write-Host $episodeNumber
+            Write-Host $tvShowDirectory
 
             # Create directory if needed and move item to that directory.
             if (!(Test-Path $tvShowDirectory))
@@ -80,15 +88,20 @@ Function Move-Movie()
         [string]$2kDestinationPath = 'M:\2K movies\New'
     )
 
-    if ($_.fullname -match '.*2160p.*')
+    # If movie is in a directory, move it, otherwise create a directory with
+    # the same name and then move it.
+    if (Test-Path -Path $Path -PathType Container)
     {
-        Write-Host "Moving $($Path.basename) to 4k movies"
-        Move-Item -Path $Path -Destination $4kDestinationPath
-    }
-    else
-    {
-        Write-Host "Moving $($Path.basename) to new 2k movies"
-        Move-Item -Path $Path -Destination $2kDestinationPath
+        if ($_.fullname -match '.*2160p.*')
+        {
+            Write-Host "Moving $($Path.basename) to $($4kDestinationPath)"
+            Move-Item -Path $Path -Destination $4kDestinationPath
+        }
+        else
+        {
+            Write-Host "Moving $($Path.basename) to $($2kDestinationPath)"
+            Move-Item -Path $Path -Destination $2kDestinationPath
+        }
     }
 }
 
