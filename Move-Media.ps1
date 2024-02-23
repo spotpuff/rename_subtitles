@@ -50,12 +50,6 @@ Function Move-TvShow()
 
             $tvShowDirectory = Join-Path -Path $TvDestinationPath -ChildPath $("$showName\Season $([int]$seasonNumber)")
 
-            Write-Host $Path
-            Write-Host $showName
-            Write-Host $seasonNumber
-            Write-Host $episodeNumber
-            Write-Host $tvShowDirectory
-
             # Create directory if needed and move item to that directory.
             if (!(Test-Path $tvShowDirectory))
             {
