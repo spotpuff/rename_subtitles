@@ -26,6 +26,26 @@ Function Move-TvShow()
     param
     (
         [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    # If working on directory, get child items first. Then move media + subs.
+    if (Test-Path -LiteralPath $Path -PathType Container)
+    {
+        Move-TvShowDirectory -Path $Path
+    }
+    else
+    {
+        Move-TvShowFile -Path $Path
+    }
+}
+
+Function Move-TvShowFile()
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
         [string]$Path,
 
         [Parameter(Mandatory = $false)]
@@ -37,34 +57,46 @@ Function Move-TvShow()
     )
 
     # If working on directory, get child items first. Then move media + subs.
-    if (Test-Path -LiteralPath $Path -PathType Leaf)
+    $filename = Split-Path $Path -Leaf
+
+    # Determine show name and episode number (for season) based on item name.
+    if ( $filename -match $TvRegexPattern)
     {
-        $filename = Split-Path $Path -Leaf
+        $showName = $Matches.showName.Replace('.', ' ')
+        $seasonNumber = $Matches.seasonNumber.Replace('.', '').Replace('S', '').Replace('s', '')
+        $episodeNumber = $Matches.episodeNumber.Replace('.', '').Replace('E', '').Replace('e', '')
 
-        # Determine show name and episode number (for season) based on item name.
-        if ( $filename -match $TvRegexPattern)
+        $tvShowDirectory = Join-Path -Path $TvDestinationPath -ChildPath $("$showName\Season $([int]$seasonNumber)")
+
+        # Create directory if needed and move item to that directory.
+        if (!(Test-Path $tvShowDirectory))
         {
-            $showName = $Matches.showName.Replace('.', ' ')
-            $seasonNumber = $Matches.seasonNumber.Replace('.', '').Replace('S', '').Replace('s', '')
-            $episodeNumber = $Matches.episodeNumber.Replace('.', '').Replace('E', '').Replace('e', '')
-
-            $tvShowDirectory = Join-Path -Path $TvDestinationPath -ChildPath $("$showName\Season $([int]$seasonNumber)")
-
-            # Create directory if needed and move item to that directory.
-            if (!(Test-Path $tvShowDirectory))
-            {
-                Write-Warning "Creating $tvShowDirectory."
-                New-Item $tvShowDirectory -ItemType Directory
-            }
-
-            Write-Output "Moving $showName - S$seasonNumber.E$episodeNumber to $tvShowDirectory."
-            Move-Item -LiteralPath $_.FullName -Destination $tvShowDirectory
+            Write-Warning "Creating $tvShowDirectory."
+            New-Item $tvShowDirectory -ItemType Directory
         }
-        else
-        {
-            Write-Warning 'Media name not recognized. Media files not moved.'
-        }
+
+        Write-Output "Moving $showName - S$seasonNumber.E$episodeNumber to $tvShowDirectory."
+        Move-Item -LiteralPath $_.FullName -Destination $tvShowDirectory
     }
+    else
+    {
+        Write-Warning 'Media name not recognized. Media files not moved.'
+    }
+}
+
+Function Move-TvShowDirectory
+{
+    [CmdletBinding()]
+    param
+    (
+        [Parameter(Mandatory = $true)]
+        [string]$Path
+    )
+
+    # Get Child items and call move-tv show on each
+    $mediaFileTypes = @('.srt', '.mkv', '.mp4', '.mpeg4')
+    $filesTomove = Get-ChildItem -LiteralPath $Path | Where-Object { $_.Extension -in $mediaFileTypes }
+    $filesTomove | ForEach-Object { Move-TvShowFile $_.FullName }
 }
 
 Function Move-Movie()
@@ -84,17 +116,17 @@ Function Move-Movie()
 
     # If movie is in a directory, move it, otherwise create a directory with
     # the same name and then move it.
-    if (Test-Path -Path $Path -PathType Container)
+    if (Test-Path -LiteralPath $Path -PathType Container)
     {
         if ($_.fullname -match '.*2160p.*')
         {
             Write-Host "Moving $($Path.basename) to $($4kDestinationPath)"
-            Move-Item -Path $Path -Destination $4kDestinationPath
+            Move-Item -LiteralPath $Path -Destination $4kDestinationPath
         }
         else
         {
             Write-Host "Moving $($Path.basename) to $($2kDestinationPath)"
-            Move-Item -Path $Path -Destination $2kDestinationPath
+            Move-Item -LiteralPath $Path -Destination $2kDestinationPath
         }
     }
 }
@@ -102,6 +134,7 @@ Function Move-Movie()
 # if parameterizing for show vs movie, will need different things probably, since movies have no season or whatever
 # it's likely just 2k vs 4k
 $mediaItems = Get-ChildItem -LiteralPath $Path -File
+$mediaFileTypes = @('.srt', '.mkv', '.mp4', '.mpeg4')
 
 # If the directory/file name matches this pattern it's very likely a TV show.
 $mediaItems | ForEach-Object {
@@ -111,6 +144,20 @@ $mediaItems | ForEach-Object {
     }
     else
     {
-        Move-Movie -Path $_.FullName
+        if (Test-Path -LiteralPath $_.FullName -PathType Container)
+        {
+            $mediaFiles = Get-ChildItem -LiteralPath $_.FullName | Where-Object { $_.Extension -in $mediaFileTypes }
+            if ($mediaFiles.Count -gt 0)
+            {
+                Move-Movie -Path $_.FullName
+            }
+        }
+        else
+        {
+            if ($_.Extension -in $mediaFileTypes)
+            {
+                Move-Movie -Path $_.FullName
+            }
+        }
     }
 }
