@@ -16,7 +16,7 @@ Param
     [string]$Path = 'M:\downloads',
 
     [parameter(Mandatory = $false, Position = 1)]
-    [string]$TvMediaPattern = '(?<showName>.*)(?<seasonNumber>\.[Ss]?\d{2})(?<episodeNumber>[Ee]?\d{2})(?<proper>\.PROPER)?(?<resolution>\.\d{3,}p)?(?<meta>\..*)'
+    [string]$TvMediaPattern = '(?<showName>.*)(?<seasonNumber>\.[Ss]\d{2})(?<episodeNumber>[Ee]\d{2})(?<proper>\.PROPER)?(?<resolution>\.\d{3,}p)?(?<meta>\..*)'
 )
 
 # Function to process a TV show. Analagous movie function also exists.
@@ -133,7 +133,7 @@ Function Move-Movie()
 
 # if parameterizing for show vs movie, will need different things probably, since movies have no season or whatever
 # it's likely just 2k vs 4k
-$mediaItems = Get-ChildItem -LiteralPath $Path -File
+$mediaItems = Get-ChildItem -LiteralPath $Path
 $mediaFileTypes = @('.srt', '.mkv', '.mp4', '.mpeg4')
 
 # If the directory/file name matches this pattern it's very likely a TV show.
