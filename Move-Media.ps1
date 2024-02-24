@@ -120,12 +120,12 @@ Function Move-Movie()
     {
         if ($_.fullname -match '.*2160p.*')
         {
-            Write-Host "Moving $($Path.basename) to $($4kDestinationPath)"
+            Write-Host "Moving $(Split-Path -Path $Path -Leaf) to $($4kDestinationPath)"
             Move-Item -LiteralPath $Path -Destination $4kDestinationPath
         }
         else
         {
-            Write-Host "Moving $($Path.basename) to $($2kDestinationPath)"
+            Write-Host "Moving $(Split-Path -Path $Path -Leaf) to $($2kDestinationPath)"
             Move-Item -LiteralPath $Path -Destination $2kDestinationPath
         }
     }
