@@ -13,31 +13,15 @@
 #>
 
 Param
-    (
-        # Path to the directory to rename subs in
-        [Parameter(Mandatory = $true,
-            ValueFromPipelineByPropertyName = $true,
-            Position = 0)]
-        $Path,
+(
+    # Path to the directory to rename subs in
+    [Parameter(Mandatory = $true, Position = 0)]
+    [string]$Path,
 
-        # Enable switch to copy all subtitles. Renaming not working yet with this.
-        [Parameter(Mandatory = $false,
-            ValueFromPipelineByPropertyName = $true,
-            Position = 1)]
-        [switch]
-        $AllLanguages
+    # Enable switch to copy all subtitles. Renaming not working yet with this.
+    [Parameter(Mandatory = $false, Position = 1)]
+    [switch]$AllLanguages
 )
-
-if ($videoFiles.count -gt 1)
-        {
-            Write-Output "Renaming tv subtitles in: $($_.fullname)"
-            & $PSScriptRoot\Rename-SubtitlesTv.ps1 -Path $_.FullName
-        }
-        else
-        {
-            Write-Output "Renaming movie subtitles in: $($_.fullname)"
-            & $PSScriptRoot\Rename-Subtitles.ps1 -Path $_.FullName
-        }
 
 Function Rename-MovieSubtitles()
 {
@@ -45,17 +29,12 @@ Function Rename-MovieSubtitles()
     Param
     (
         # Path to the directory to rename subs in
-        [Parameter(Mandatory = $true,
-            ValueFromPipelineByPropertyName = $true,
-            Position = 0)]
-        $Path,
+        [Parameter(Mandatory = $true, Position = 0)]
+        [string]$Path,
 
         # Enable switch to copy all subtitles. Renaming not working yet with this.
-        [Parameter(Mandatory = $false,
-            ValueFromPipelineByPropertyName = $true,
-            Position = 1)]
-        [switch]
-        $AllLanguages
+        [Parameter(Mandatory = $false, Position = 1)]
+        [switch]$AllLanguages
     )
 
     # Get the subs from the subdir and the movie file name
@@ -155,10 +134,8 @@ Function Rename-TvSubtitles()
     Param
     (
         # Path to the directory to rename subs in
-        [Parameter(Mandatory = $true,
-            ValueFromPipelineByPropertyName = $true,
-            Position = 0)]
-        $Path#,
+        [Parameter(Mandatory = $true, Position = 0)]
+        [string]$Path#,
 
         # # Enable switch to copy all subtitles. Renaming not working yet with this.
         # [Parameter(Mandatory = $false,
@@ -168,7 +145,8 @@ Function Rename-TvSubtitles()
         # $AllLanguages
     )
 
-    $files = Get-ChildItem -LiteralPath $Path -File -Filter *.mp4
+    $fileTypes = @('.mkv', '.mp4', '.mpeg4')
+    $files = Get-ChildItem -LiteralPath $Path -File -Include $fileTypes
 
     foreach ($file in $files)
     {
@@ -189,4 +167,18 @@ Function Rename-TvSubtitles()
             Rename-Item $newSubs[2] "$subBaseName.eng.forced.srt"
         }
     }
+}
+
+# Actual subtitle processing here.
+$fileTypes = @('.mkv', '.mp4', '.mpeg4')
+$videoFiles = Get-ChildItem -LiteralPath $Path | Where-Object { $_.Extension -in $fileTypes -and $_.length -gt '5MB' }
+if ($videoFiles.count -gt 1)
+{
+    Write-Output "Renaming tv subtitles in: $($_.fullname)"
+    Rename-TvSubtitles -Path $Path -AllLanguages:$AllLanguages
+}
+else
+{
+    Write-Output "Renaming movie subtitles in: $($_.fullname)"
+    Rename-MovieSubtitles -Path $Path -AllLanguages:$AllLanguages
 }
