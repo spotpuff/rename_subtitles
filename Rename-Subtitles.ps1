@@ -134,7 +134,7 @@ Function Rename-TvSubtitles()
     Param
     (
         # Path to the directory to rename subs in
-        [Parameter(Mandatory = $true,Position = 0)]
+        [Parameter(Mandatory = $true, Position = 0)]
         [string]$Path#,
 
         # # Enable switch to copy all subtitles. Renaming not working yet with this.
@@ -171,7 +171,7 @@ Function Rename-TvSubtitles()
 
 # Actual subtitle processing here.
 $fileTypes = @('.mkv', '.mp4', '.mpeg4')
-$videoFiles = Get-ChildItem -LiteralPath $Path -Include $fileTypes | Where-Object { $_.length -gt '5MB' }
+$videoFiles = Get-ChildItem -LiteralPath $Path | Where-Object { $_.Extension -in $fileTypes -and $_.length -gt '5MB' }
 if ($videoFiles.count -gt 1)
 {
     Write-Output "Renaming tv subtitles in: $($_.fullname)"
