@@ -26,23 +26,21 @@ $mediaItems = Get-ChildItem -LiteralPath $Path -Directory
 if ($mediaItems.count -gt 0)
 {
     $mediaItems | ForEach-Object {
-        Write-Output $_.full
+        Write-Host $_.FullName
 
-        if (Test-Path $_.FullName -PathType Container)
+        if (Test-Path -LiteralPath $_.FullName -PathType Container)
         {
             # remove extraneous files
-            Write-Output "Removing extra files in: $($_.FullName)"
+            Write-Host "Removing extra files in: $($_.FullName)"
             & $PSScriptRoot\Remove-ExtraFiles.ps1 -Path $_.FullName
         }
 
         # Call Rename-Subtitles.ps1 script
-        Write-Output "Renaming subtitles in: $($_.FullName)"
+        Write-Host "Renaming subtitles in: $($_.FullName)"
         & $PSScriptRoot\Rename-Subtitles.ps1 -Path $_.FullName
     }
 }
 else
 {
-    Write-Output "No media mediaItems found in $Path."
+    Write-Warning "No media directories found in $($Path)."
 }
-
-Pause
