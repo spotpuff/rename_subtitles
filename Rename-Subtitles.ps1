@@ -7,9 +7,9 @@
    Copies subtitles from a "Subs" subdirectory into the top level
    with the same name as the movie file in the top level directory.
 .EXAMPLE
-   .\Rename-Subtitles -Path 'path/to/directory/with/media'
+   .\Rename-Subtitles -Path 'Path/to/directory/with/media'
 .EXAMPLE
-   .\Rename-Subtitles -Path 'path/to/directory/with/media' -AllLanguages
+   .\Rename-Subtitles -Path 'Path/to/directory/with/media' -AllLanguages
 #>
 
 Param
@@ -22,6 +22,10 @@ Param
     [Parameter(Mandatory = $false, Position = 1)]
     [switch]$AllLanguages
 )
+
+[string]$movieSizeFloor = '5MB'
+[string[]]$videoFileExtensions = @('.mkv', '.mp4', '.mpeg4', '.mpeg', '.mpg', '.avi')
+[string]$englishSubtitleFilterString = '*eng*.srt'
 
 Function Rename-MovieSubtitles()
 {
@@ -43,8 +47,7 @@ Function Rename-MovieSubtitles()
         $dirName = Split-Path $Path -Leaf
 
         # get movies; if more than one, pick the biggest one
-        $movieFormatList = @('*.mkv', '*.mp4', '*.mpeg4', '*.mpeg', '*.mpg', '*.avi')
-        $movieFiles = Get-ChildItem -LiteralPath $Path -Include $movieFormatList -File
+        $movieFiles = Get-ChildItem -LiteralPath $Path -File | Where-Object { $_.Extension -in $videoFileExtensions -and $_.Length -gt $movieSizeFloor }
         if (-not $movieFiles)
         {
             $logText = "$dirName - No movie file found."
@@ -57,7 +60,7 @@ Function Rename-MovieSubtitles()
         }
 
         # check if sub exists
-        $subPath = Join-Path $Path "$($movieFile.Basename).eng.srt"
+        $subPath = Join-Path $Path "$($movieFile.Basename).en.srt"
         if (Test-Path -LiteralPath $subPath)
         {
             $logText = "$dirName - Subtitle already exists."
@@ -66,7 +69,7 @@ Function Rename-MovieSubtitles()
         }
 
         # Get subs subdir
-        $subsDir = Get-ChildItem -LiteralPath $path -Filter 'Subs'
+        $subsDir = Get-ChildItem -LiteralPath $Path -Filter 'Subs'
         if (-not $subsDir)
         {
             $logText = "$dirName - No subs dir found."
@@ -77,8 +80,7 @@ Function Rename-MovieSubtitles()
         # get English only by default
         if (-not $AllLanguages)
         {
-            $subFilter = @('*eng*.srt')
-            $subs = Get-ChildItem -LiteralPath $subsDir.FullName -Include $subFilter
+            $subs = Get-ChildItem -LiteralPath $subsDir.FullName -Filter $englishSubtitleFilterString
         }
         else
         {
@@ -145,40 +147,39 @@ Function Rename-TvSubtitles()
         # $AllLanguages
     )
 
-    $fileTypes = @('.mkv', '.mp4', '.mpeg4')
-    $files = Get-ChildItem -LiteralPath $Path -File -Include $fileTypes
+    $videoFiles = Get-ChildItem -LiteralPath $Path -File | Where-Object { $_.Extension -in $videoFileExtensions }
 
-    foreach ($file in $files)
+    foreach ($file in $videoFiles)
     {
-        # get the subs for each file
-        $temppath = Join-Path "$path\Subs" $file.basename
-        Write-Output $temppath
-        $subs = Get-ChildItem -LiteralPath $temppath -Filter *eng*.srt
+        # get the subs for each file; subs are usually in \Subs\<episode name>
+        $tempPath = Join-Path -LiteralPath "$($Path)\Subs" -ChildPath $file.basename
+        $subs = Get-ChildItem -LiteralPath $tempPath -Filter $englishSubtitleFilterString
 
         # copy subs
-        $newSubs = $subs | Copy-Item -Destination $path -PassThru | Sort-Object Length -Descending
+        $newSubs = $subs | Copy-Item -Destination $Path -PassThru | Sort-Object Length -Descending
 
         # rename subs; making assumptions on which ones are which
         $subBaseName = $file.BaseName
-        Rename-Item -LiteralPath $newSubs[0] "$subBaseName.eng.sdh.srt"
-        Rename-Item -LiteralPath $newSubs[1] "$subBaseName.eng.srt"
+        Rename-Item -LiteralPath $newSubs[0] "$($subBaseName).eng.sdh.srt"
+        Rename-Item -LiteralPath $newSubs[1] "$($subBaseName).eng.srt"
         if ($subs.Count -eq 3)
         {
-            Rename-Item $newSubs[2] "$subBaseName.eng.forced.srt"
+            Rename-Item $newSubs[2] "$($subBaseName).eng.forced.srt"
         }
     }
 }
 
 # Actual subtitle processing here.
-$fileTypes = @('.mkv', '.mp4', '.mpeg4')
-$videoFiles = Get-ChildItem -LiteralPath $Path | Where-Object { $_.Extension -in $fileTypes -and $_.length -gt '5MB' }
+$videoFiles = Get-ChildItem -LiteralPath $Path |
+    Where-Object { $_.Extension -in $videoFileExtensions -and $_.length -gt $movieSizeFloor }
+
 if ($videoFiles.count -gt 1)
 {
-    Write-Output "Renaming tv subtitles in: $($_.fullname)"
+    Write-Output "Renaming tv subtitles in: $(Split-Path $Path -Leaf)"
     Rename-TvSubtitles -Path $Path -AllLanguages:$AllLanguages
 }
 else
 {
-    Write-Output "Renaming movie subtitles in: $($_.fullname)"
+    Write-Output "Renaming movie subtitles in: $(Split-Path $Path -Leaf)"
     Rename-MovieSubtitles -Path $Path -AllLanguages:$AllLanguages
 }
