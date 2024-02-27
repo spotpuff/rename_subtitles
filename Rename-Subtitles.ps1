@@ -52,7 +52,7 @@ Function Rename-MovieSubtitles()
         {
             $logText = "$dirName - No movie file found."
             Write-Warning $logText
-            Exit
+            return
         }
         else
         {
@@ -65,7 +65,7 @@ Function Rename-MovieSubtitles()
         {
             $logText = "$dirName - Subtitle already exists."
             Write-Warning $logText
-            Exit
+            return
         }
 
         # Get subs subdir
@@ -74,7 +74,7 @@ Function Rename-MovieSubtitles()
         {
             $logText = "$dirName - No subs dir found."
             Write-Warning $logText
-            continue
+            return [bool]$foundSubs = $false
         }
 
         # get English only by default
@@ -91,34 +91,37 @@ Function Rename-MovieSubtitles()
         {
             $logText = "$dirName - No subtitles found."
             Write-Warning $logText
-            Exit
+            return [bool]$foundSubs = $false
         }
     }
 
     # Copy Subs from subs subdirectory to the target Path and rename to movie file.
     Process
     {
-        $newSubs = $subs | Copy-Item -Destination $Path -PassThru
+        if ($foundSubs)
+        {
+            $newSubs = $subs | Copy-Item -Destination $Path -PassThru
 
-        # if only 1 sub, assume it's English
-        if ($newSubs.Count -eq 1)
-        {
-            Rename-Item $newSubs[0].FullName -NewName "$($movieFile.BaseName).eng.srt" -ErrorAction Stop
-        }
-        else # if there are more than 3 subs I duno what to do lol
-        {
-            # if more than one sub, assume order is:
-            # 1. SDH
-            # 2. ENG
-            # 3. Forced
-            $logText = "$dirName 2+ English subtitles found."
-            Write-Warning $logText
-            $sortedNewSubs = $newSubs | Sort-Object Length -Descending
-            Rename-Item $sortedNewSubs[0].FullName -NewName "$($movieFile.BaseName).eng.sdh.srt" -ErrorAction Stop
-            Rename-Item $sortedNewSubs[1].FullName -NewName "$($movieFile.BaseName).eng.srt" -ErrorAction Stop
-            if ($sortedNewSubs.count -eq 3)
+            # if only 1 sub, assume it's English
+            if ($newSubs.Count -eq 1)
             {
-                Rename-Item $sortedNewSubs[2].FullName -NewName "$($movieFile.BaseName).eng.forced.srt" -ErrorAction Stop
+                Rename-Item $newSubs[0].FullName -NewName "$($movieFile.BaseName).eng.srt" -ErrorAction Stop
+            }
+            else # if there are more than 3 subs I duno what to do lol
+            {
+                # if more than one sub, assume order is:
+                # 1. SDH
+                # 2. ENG
+                # 3. Forced
+                $logText = "$dirName 2+ English subtitles found."
+                Write-Warning $logText
+                $sortedNewSubs = $newSubs | Sort-Object Length -Descending
+                Rename-Item $sortedNewSubs[0].FullName -NewName "$($movieFile.BaseName).eng.sdh.srt" -ErrorAction Stop
+                Rename-Item $sortedNewSubs[1].FullName -NewName "$($movieFile.BaseName).eng.srt" -ErrorAction Stop
+                if ($sortedNewSubs.count -eq 3)
+                {
+                    Rename-Item $sortedNewSubs[2].FullName -NewName "$($movieFile.BaseName).eng.forced.srt" -ErrorAction Stop
+                }
             }
         }
     }
