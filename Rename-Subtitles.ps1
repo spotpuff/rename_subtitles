@@ -115,6 +115,7 @@ Function Rename-MovieSubtitles()
                 # 3. Forced
                 $logText = "$dirName 2+ English subtitles found."
                 Write-Warning $logText
+                
                 $sortedNewSubs = $newSubs | Sort-Object Length -Descending
                 Rename-Item $sortedNewSubs[0].FullName -NewName "$($movieFile.BaseName).eng.sdh.srt" -ErrorAction Stop
                 Rename-Item $sortedNewSubs[1].FullName -NewName "$($movieFile.BaseName).eng.srt" -ErrorAction Stop
