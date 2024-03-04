@@ -49,4 +49,4 @@ else
 & $PSScriptRoot\Move-Media.ps1
 
 # Cleanup empty subdirectories
-& $PSScriptRoot\Remove-EmptyDirectories.ps1
+& $PSScriptRoot\Remove-DirectoriesWithoutMedia.ps1
