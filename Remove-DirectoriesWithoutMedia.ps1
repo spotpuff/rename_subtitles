@@ -23,7 +23,7 @@ Param
 $mediaDirectories = Get-ChildItem -LiteralPath $Path -Directory
 $mediaDirectories | ForEach-Object {
     $mediaFiles = Get-ChildItem -File -Recurse | Where-Object { $_.Extension -in $MediaFileTypes }
-    $baseDirectory = Split-Path -LiteralPath $_.FullName -Leaf
+    $baseDirectory = Split-Path -Path $_.FullName -Leaf
     if ($mediaFiles.count -eq 0)
     {
         Write-Host "$($baseDirectory) was empty; removing it."
