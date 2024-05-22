@@ -141,14 +141,12 @@ Function Rename-TvSubtitles()
     (
         # Path to the directory to rename subs in
         [Parameter(Mandatory = $true, Position = 0)]
-        [string]$Path#,
+        [string]$Path,
 
-        # # Enable switch to copy all subtitles. Renaming not working yet with this.
-        # [Parameter(Mandatory = $false,
-        #     ValueFromPipelineByPropertyName = $true,
-        #     Position = 1)]
-        # [switch]
-        # $AllLanguages
+        # Enable switch to copy all subtitles. Renaming not working yet with this.
+        [Parameter(Mandatory = $false, Position = 1)]
+        [switch]
+        $AllLanguages
     )
 
     $videoFiles = Get-ChildItem -LiteralPath $Path -File | Where-Object { $_.Extension -in $videoFileExtensions }
@@ -156,19 +154,46 @@ Function Rename-TvSubtitles()
     foreach ($file in $videoFiles)
     {
         # get the subs for each file; subs are usually in \Subs\<episode name>
-        $tempPath = Join-Path -LiteralPath "$($Path)\Subs" -ChildPath $file.basename
-        $subs = Get-ChildItem -LiteralPath $tempPath -Filter $englishSubtitleFilterString
+        $tempPath = Join-Path -Path $Path -ChildPath "Subs\$($file.basename)"
 
-        # copy subs
-        $newSubs = $subs | Copy-Item -Destination $Path -PassThru | Sort-Object Length -Descending
-
-        # rename subs; making assumptions on which ones are which
-        $subBaseName = $file.BaseName
-        Rename-Item -LiteralPath $newSubs[0] "$($subBaseName).eng.sdh.srt"
-        Rename-Item -LiteralPath $newSubs[1] "$($subBaseName).eng.srt"
-        if ($subs.Count -eq 3)
+        if (-not $AllLanguages)
         {
-            Rename-Item $newSubs[2] "$($subBaseName).eng.forced.srt"
+            Write-Verbose "AllLanguages = $false"
+            $subs = Get-ChildItem -LiteralPath $tempPath -Filter $englishSubtitleFilterString 
+
+            # copy subs
+            $newSubs = $subs | Copy-Item -Destination $Path -PassThru | Sort-Object Length -Descending
+
+            # rename subs; making assumptions on which ones are which
+            $subBaseName = $file.BaseName
+
+            switch ($newSubs.Count)
+            {
+                0 { Write-Host 'No subtitles found.'; break }
+                { $_ -ge 1 } { Rename-Item -LiteralPath $newSubs[0] "$($subBaseName).eng.srt" }
+                { $_ -ge 2 } { Rename-Item -LiteralPath $newSubs[1] "$($subBaseName).eng.srt" }
+                { $_ -ge 3 } { Rename-Item -LiteralPath $newSubs[2] "$($subBaseName).eng.forced.srt"; break }
+            }
+        }
+        else
+        {
+            Write-Verbose "AllLanguages = $true"
+            $subs = Get-ChildItem -LiteralPath $tempPath -Filter '*.srt' 
+
+            # copy subs
+            $newSubs = $subs | Copy-Item -Destination $Path -PassThru | Sort-Object Length -Descending
+
+            # rename subs; making assumptions on which ones are which
+            $subBaseName = $file.BaseName
+
+            $newSubs | ForEach-Object { Rename-Item "$($subBaseName)" }
+
+            Rename-Item -LiteralPath $newSubs[0] "$($subBaseName).eng.sdh.srt"
+            Rename-Item -LiteralPath $newSubs[1] "$($subBaseName).eng.srt"
+            if ($subs.Count -eq 3)
+            {
+                Rename-Item $newSubs[2] "$($subBaseName).eng.forced.srt"
+            }
         }
     }
 }
