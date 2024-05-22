@@ -16,7 +16,7 @@ Param
     [string]$Path = 'M:\downloads',
 
     [parameter(Mandatory = $false, Position = 1)]
-    [string]$TvMediaPattern = '(?<showName>.*)(?<seasonNumber>\.[Ss]\d{2})(?<episodeNumber>[Ee]\d{2})(?<proper>\.PROPER)?(?<resolution>\.\d{3,}p)?(?<meta>\..*)'
+    [string]$TvMediaPattern = '(?<showName>.*)((?<seasonNumber>\.[Ss]\d{2})(?<episodeNumber>[Ee]\d{2})|(?<fullSeasonNumber>\.[Ss]\d{2}))(?<proper>\.PROPER)?(?<resolution>\.\d{3,}p)?(?<meta>\..*)'
 )
 
 # Function to process a TV show. Analagous movie function also exists.
@@ -60,7 +60,7 @@ Function Move-TvShowFile()
     $filename = Split-Path $Path -Leaf
 
     # Determine show name and episode number (for season) based on item name.
-    if ( $filename -match $TvRegexPattern)
+    if ($filename -match $TvRegexPattern)
     {
         $showName = $Matches.showName.Replace('.', ' ')
         $seasonNumber = $Matches.seasonNumber.Replace('.', '').Replace('S', '').Replace('s', '')
