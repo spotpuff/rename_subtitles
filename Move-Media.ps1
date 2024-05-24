@@ -16,7 +16,7 @@ Param
     [string]$Path = 'M:\downloads',
 
     [parameter(Mandatory = $false, Position = 1)]
-    [string]$TvMediaPattern = '(?<showName>.*)((?<seasonNumber>\.[Ss]\d{2})(?<episodeNumber>[Ee]\d{2})|(?<fullSeasonNumber>\.[Ss]\d{2}))(?<proper>\.PROPER)?(?<resolution>\.\d{3,}p)?(?<meta>\..*)'
+    [string]$TvMediaPattern = '(?<showName>.*)(?<seasonNumber>\.[Ss]\d{1,3})(?<episodeNumber>[Ee]\d{1,3})?(?<proper>\.PROPER)?(?<resolution>\.\d{3,4}p)?(?<meta>\..*)'
 )
 
 # Function to process a TV show. Analagous movie function also exists.
