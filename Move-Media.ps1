@@ -169,8 +169,8 @@ $mediaFileTypes = @('.srt', '.mkv', '.mp4', '.mpeg4')
 
 # If the directory/file name matches this pattern it should be a TV show.
 $mediaItems | ForEach-Object {
-    $mediaItem = Get-Item $_.FullName
-
+    $mediaItem = Get-Item -LiteralPath $_.FullName
+    
     switch ($true)
     {
         
