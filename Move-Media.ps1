@@ -116,7 +116,7 @@ Function Move-Movie()
     {
         param
         (
-            [parameter(Mandatory=$true)][string]$Path
+            [parameter(Mandatory = $true)][string]$Path
         )
 
         $movieFile = Get-Item -LiteralPath $Path
@@ -129,7 +129,7 @@ Function Move-Movie()
     {
         param
         (
-            [Parameter(Mandatory=$true)][string]$Path
+            [Parameter(Mandatory = $true)][string]$Path
         )
         
         if ($_.fullname -match '.*2160p.*')
