@@ -121,7 +121,11 @@ Function Move-Movie()
 
         $movieFile = Get-Item -LiteralPath $Path
         $movieDirectoryPath = Join-Path -Path $moviefile.Directory -ChildPath $movieFile.BaseName
-        New-Item -LiteralPath $movieDirectoryPath -ItemType Directory
+        if (-not (Test-Path -Path $movieDirectoryPath))
+        {
+            New-Item -Path $movieDirectoryPath -ItemType Directory
+        }
+        
         Write-Output $movieDirectoryPath
     }
 
@@ -165,27 +169,30 @@ $mediaFileTypes = @('.srt', '.mkv', '.mp4', '.mpeg4')
 
 # If the directory/file name matches this pattern it should be a TV show.
 $mediaItems | ForEach-Object {
+    $mediaItem = Get-Item $_.FullName
+
     switch ($true)
     {
-        ($_.name -match $TvMediaPattern)
+        
+        ($mediaItem.Name -match $TvMediaPattern)
         {
-            Move-TvShow -Path $_.FullName
+            Move-TvShow -Path $mediaItem.FullName
             break
         }
         
-        (Test-Path -LiteralPath $_.FullName -PathType Container)
+        (Test-Path -LiteralPath $mediaItem.FullName -PathType Container)
         {
-            $mediaFiles = Get-ChildItem -LiteralPath $_.FullName | Where-Object { $_.Extension -in $mediaFileTypes }
+            $mediaFiles = Get-ChildItem -LiteralPath $mediaItem.FullName | Where-Object { $_.Extension -in $mediaFileTypes }
             if ($mediaFiles.Count -gt 0)
             {
-                Move-Movie -Path $_.FullName
+                Move-Movie -Path $mediaItem.FullName
             }
             break
         }
         
-        ($_.Extension -in $mediaFileTypes)
+        ($mediaItem.Extension -in $mediaFileTypes)
         {
-            Move-Movie -Path $_.FullName
+            Move-Movie -Path $mediaItem.FullName
             break
         }
         
