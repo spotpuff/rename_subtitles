@@ -121,12 +121,17 @@ Function Move-Movie()
 
         $movieFile = Get-Item -LiteralPath $Path
         $movieDirectoryPath = Join-Path -Path $moviefile.Directory -ChildPath $movieFile.BaseName
+        
         if (-not (Test-Path -Path $movieDirectoryPath))
         {
             New-Item -Path $movieDirectoryPath -ItemType Directory
         }
+        else
+        {
+            Write-Warning "Path $($movieDirectoryPath) already exists, using existing directory."
+        }
         
-        Write-Output $movieDirectoryPath
+        Write-Output [string]$movieDirectoryPath
     }
 
     function Move-MovieDirectory
